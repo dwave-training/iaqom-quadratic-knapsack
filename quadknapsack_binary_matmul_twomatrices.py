@@ -23,10 +23,10 @@ individual_values_matrix = np.array([6, 5, 8])
 
 # The interaction value associated with selecting pairs of products together.
 pairwise_interaction = np.array([
-						[0, 4, 3],
-						[4, 0, 2],
-						[3, 2, 0]
-						])
+                                [0, 4, 3],
+                                [4, 0, 2],
+                                [3, 2, 0]
+                                ])
 
 # The weight of each product.
 weights = np.array([2,3,4])
@@ -77,7 +77,7 @@ model_two_matmul.add_constraint((product_weights * products).sum() <= container_
 print("\nSubmit the quadratic knapsack problem to the Stride hybrid solver using the @ operator with two values matrices\n")
 """Read in the solution returned using `state(0)` and display solution."""
 
-#TODO: Return the best solution for the binary variable symbol and store it `products_state`.
+#TODO: Return the best solution for the binary variable symbol and store it in `products_state`.
 
 
 #TODO: Return the best solution's objective value and store it in `objective_value`.

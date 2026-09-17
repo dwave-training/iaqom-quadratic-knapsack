@@ -8,7 +8,7 @@ Given constants:
     weight_limit (int): The weight capacity of the shipping container.
 """
 
-# Any required packages.
+# The required packages
 import numpy as np
 from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
@@ -19,10 +19,10 @@ model = Model()
 # Constants
 # The values of individual products and the interactions associated with selecting pairs of products together.
 values_matrix = np.array([
-                 [6, 2, 1.5],
-                 [2, 5, 1],
-                 [1.5, 1, 8]
-                ])
+                        [6, 2, 1.5],
+                        [2, 5, 1],
+                        [1.5, 1, 8]
+                        ])
 
 # The weight of each product.
 weights = np.array([2,3,4])

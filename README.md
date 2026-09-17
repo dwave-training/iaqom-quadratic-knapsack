@@ -77,7 +77,7 @@ Open `quadknapsack_binary_matmul_twomatrices.py`.
 
 
 ## Example: Quadratic knapsack code with sets
-The following example implements the quadratic knapsack problem using a set variable instead of binary. Some of the code should look familiar from the model using binary variables; however, there are some differences, particularly in how the objective function is structured. Here, matrix multiplication is used to formulate the objective function, and the model is submitted to the Stride Hybrid Solver to obtain the best solution.
+The following example implements the quadratic knapsack problem using a set variable instead of binary. Some part of the code should look familiar from the model using binary variables; however, there are some differences, particularly in how the objective function is structured. Here, matrix multiplication is used to formulate the objective function, and the model is submitted to the Stride Hybrid Solver to obtain the best solution.
 
 The code in the repo is intended to help you explore the model as part of the online course and, thus, does not contain any `TODO` sections.
 
