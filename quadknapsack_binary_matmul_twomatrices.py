@@ -34,7 +34,7 @@ weights = np.array([2,3,4])
 # The weight limit of the shipping container.
 weight_limit = 8
 
-# Number of avaiblable products to pick from.
+# Number of available products to pick from.
 n = len(weights)
 
 #TODO: Define the half pairwise interaction matrix and name it `half_pairwise_interaction`.
