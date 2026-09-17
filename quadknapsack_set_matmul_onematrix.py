@@ -39,7 +39,7 @@ product_weights = model.constant(weights)
 container_weight_limit = model.constant(weight_limit)
 eye = model.constant(np.eye(n))  # used to build the indicator vector
 
-# Define the decision variable: set of packed product indices (dynamic size 0..n)
+# Define the decision variable: set of packed product indices (dynamic size 0 to n)
 products = model.set(n)
 
 # Build a fixed-shape binary indicator from the set 
