@@ -1,7 +1,7 @@
 """
 Requirements:
     Objective: Maximize the total value of products in the container.
-    Constraint: The total weight of selected products cannot exceed the container's weight limit.
+    Constraint: The total weight of the selected products cannot exceed the container's weight limit.
 Given constants:
     individual_values_matrix (array): The individual value of each product.
     pairwise_interaction (array): The interaction value associated with selecting pairs of products together.
@@ -48,6 +48,7 @@ products = model_two_for.binary(n)
 linear_obj = (individual_values * products).sum()
 
 # TODO: Define the quadratic objective using a for loop, and store it in `quadratic_obj`.
+# Hint: Use `sum()` with a generator expression containing nested `for` clauses over all unique pairs (i < j).
 
 
 # TODO: Set the objective function.
@@ -69,7 +70,7 @@ model_two_for.add_constraint((product_weights * products).sum() <= container_wei
 print(
     "\nSubmit the quadratic knapsack problem to the Stride hybrid solver using for loop with two values matrices\n"
 )
-"""Read in the solution returned using `state(0)` and display solution."""
+"""Read in the solution returned using `state(0)` and print it to the console."""
 
 # TODO: Return the best solution for the binary variable symbol and store it in `products_state`.
 

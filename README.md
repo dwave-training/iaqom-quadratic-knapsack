@@ -12,7 +12,7 @@ Build the nonlinear model, define the objective function, and add the constraint
 
 In this exercise, the quadratic knapsack problem will be implemented using both a `for` loop and matrix multiplication, followed by a comparison of the results.
 
-## Exercise 1: Model quadratic knapsack using binary variables with a for-loop
+## Exercise 1: Model quadratic knapsack using binary variables with a for loop
 
 In the first exercise, submit the problem to the Stride hybrid solver using binary variables with a `for` loop to obtain the best solution.
 
@@ -77,9 +77,13 @@ Open `quadknapsack_binary_matmul_twomatrices.py`.
 
 
 ## Example: Quadratic knapsack code with sets
-The following example implements the quadratic knapsack problem using a set variable instead of binary. Some parts of the code should look familiar from the model using binary variables; however, there are some differences, particularly in how the objective function is structured. Here, matrix multiplication is used to formulate the objective function, and the model is submitted to the Stride Hybrid Solver to obtain the best solution.
+The following example implements the quadratic knapsack problem using a set variable instead of
+binary. Some parts of the code should look familiar from the model using binary variables; however,
+there are some differences, particularly in how the objective function is structured. Here, matrix
+multiplication is used to formulate the objective function, and the model is submitted to the Stride
+hybrid solver to obtain the best solution.
 
 The code in the repo is intended to help you explore the model as part of the online course and, thus, does not contain any `TODO` sections.
 
-Open and review `quadknapsack_set_matmul_onematrix.py` to go over the lesson Quadratic Knapsack Code with Sets in the course. 
+Open `quadknapsack_set_matmul_onematrix.py` and follow along with the course lesson *Quadratic Knapsack Code With Sets*.
   

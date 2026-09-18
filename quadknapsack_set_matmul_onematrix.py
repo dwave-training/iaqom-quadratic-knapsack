@@ -1,7 +1,7 @@
 """
 Requirements:
     Objective: Maximize the total value of products in the container.
-    Constraint: The total weight of selected products cannot exceed the container's weight limit.
+    Constraint: The total weight of the selected products cannot exceed the container's weight limit.
 Given constants:
     values_matrix (array): The values of individual products and the interactions associated with selecting pairs of products together.
     weights (array): The weight of each product.
@@ -44,7 +44,7 @@ x = eye[products].sum(axis=0)
 # Set the objective function: Maximize the total value of products in the container.
 model.minimize(-(x @ values @ x).sum())
 
-# Add the Constraint: The total weight of selected products cannot exceed the container's weight limit.
+# Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
 model.add_constraint(product_weights[products].sum() <= container_weight_limit)
 
 # Lock the model explicitly to prevent changes.
@@ -54,7 +54,7 @@ model.lock()
 sampler = StrideHybridSolver()
 
 # Submit the nonlinear model to the Stride hybrid solver.
-sampleset = sampler.sample(model)
+sampler.sample(model, label="Quadknap_set_matmul_onematrix")
 
 # Return the best solution for the set variable symbol, and its objective value.
 print(
