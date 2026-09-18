@@ -70,7 +70,7 @@ model_two_matmul.add_constraint((product_weights * products).sum() <= container_
 
 # Process and print solution
 print(
-    "\nSubmit the quadratic knapsack problem to the Stride hybrid solver using the @ operator with two values matrices\n"
+    "\nSubmit the quadratic knapsack problem to the Stride hybrid solver using an objective function with the @ operator and two separate matrices for individual and interaction values \n"
 )
 """Read in the solution returned using `state(0)` and print it to the console."""
 
