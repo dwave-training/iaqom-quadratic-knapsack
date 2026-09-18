@@ -68,7 +68,7 @@ model_two_for.add_constraint((product_weights * products).sum() <= container_wei
 
 # Process and print solution
 print(
-    "\nSubmit the quadratic knapsack problem to the Stride hybrid solver using an objective function with the for loop and two separate matrices for individual and interaction values\n"
+    "\nSubmit the quadratic knapsack problem to the Stride hybrid solver using an objective function with a for loop and two separate matrices for individual and interaction values.\n"
 )
 """Read in the solution returned using `state(0)` and print it to the console."""
 
