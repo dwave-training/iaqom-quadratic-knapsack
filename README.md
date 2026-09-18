@@ -81,4 +81,5 @@ The following example implements the quadratic knapsack problem using a set vari
 
 The code in the repo is intended to help you explore the model as part of the online course and, thus, does not contain any `TODO` sections.
 
-Open and review `quadknapsack_set_matmul_onematrix.py` to go over the lesson Quadratic Knapsack Code with Sets in the course.   
+Open and review `quadknapsack_set_matmul_onematrix.py` to go over the lesson Quadratic Knapsack Code with Sets in the course. 
+  
