@@ -6,17 +6,17 @@
 
 For the quadratic knapsack problem (QKP), convert the mathematical formulation into a model in Python. Use binary or set variables to represent the decision variable and code the problem so that it is compatible for submission to the Stride hybrid solver.
 
-The objective is to maximize the total monetary value of products in the container. The decision variable represents the products that are packed into the container. The constraint is that the total weight of selected products cannot exceed the container's weight limit.
+The objective is to maximize the total monetary value of products in the container. The decision variable represents which products are packed into the container. The constraint is that the total weight of selected products cannot exceed the container's weight limit.
 
 Build the nonlinear model, define the objective function, and add the constraints.
 
-In this exercise, the quadratic knapsack problem will be implemented using both a `for` loop and matrix multiplication, followed by a comparison of the results.
+In these exercises, the quadratic knapsack problem will be implemented using both a `for` loop and matrix multiplication, followed by a comparison of the results.
 
 ## Exercise 1: Model quadratic knapsack using binary variables with a for loop
 
-In the first exercise, submit the problem to the Stride hybrid solver using binary variables with a `for` loop to obtain the best solution.
+This assignment explores the quadratic knapsack problem, in which the decision variable is represented using binary variables. The quadratic term of the objective function is formulated using a `for` loop.
 
-First, create the model object, add the constants to the model, define the decision variable, set the objective function, and add the constraint. Then, submit the problem to the Stride solver.
+Follow the instructions below, then submit the problem to the Stride solver.
 
 Open `quadknapsack_binary_forloop_twomatrices.py`.
 
@@ -51,7 +51,7 @@ Open `quadknapsack_binary_forloop_twomatrices.py`.
 ## Exercise 2: Model quadratic knapsack using binary variables with matrix multiplication
 In the second exercise, use binary variables and matrix multiplication instead of a `for` loop, and submit the problem to the Stride hybrid solver to obtain the best solution.
 
-First, create the model object, add the constants to the model, define the decision variable, set the objective function, and add the constraint. Then, submit the problem to the Stride solver.
+Follow the instructions below, then submit the problem to the Stride solver.
 
 Open `quadknapsack_binary_matmul_twomatrices.py`.
 
@@ -78,12 +78,12 @@ Open `quadknapsack_binary_matmul_twomatrices.py`.
 
 ## Example: Quadratic knapsack code with sets
 The following example implements the quadratic knapsack problem using a set variable instead of
-binary. Some parts of the code should look familiar from the model using binary variables; however,
+binary variables. Some parts of the code should look familiar from the model using binary variables; however,
 there are some differences, particularly in how the objective function is structured. Here, matrix
 multiplication is used to formulate the objective function, and the model is submitted to the Stride
 hybrid solver to obtain the best solution.
 
 The code in the repo is intended to help you explore the model as part of the online course and, thus, does not contain any `TODO` sections.
 
-Open `quadknapsack_set_matmul_onematrix.py` and follow along with the course lesson *Quadratic Knapsack Code With Sets*.
+Open `quadknapsack_set_matmul_onematrix.py` and follow along on the course page *Quadratic Knapsack Code With Sets*.
   

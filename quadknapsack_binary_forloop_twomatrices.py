@@ -47,7 +47,7 @@ products = model_two_for.binary(n)
 # Define the linear objective.
 linear_obj = (individual_values * products).sum()
 
-# TODO: Define the quadratic objective using a for loop, and store it in `quadratic_obj`.
+# TODO: Define the quadratic objective using a `for` loop, and store it in `quadratic_obj`.
 # Hint: Use `sum()` with a generator expression containing nested `for` clauses over all unique pairs (i < j).
 
 

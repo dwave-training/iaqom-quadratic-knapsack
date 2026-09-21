@@ -56,7 +56,7 @@ sampler = StrideHybridSolver()
 # Submit the nonlinear model to the Stride hybrid solver.
 sampler.sample(model, label="Quadknap_set_matmul_onematrix")
 
-# Return the best solution for the set variable symbol, and its objective value.
+# Return the best solution for the set variable symbol and its objective value.
 print(
     f"The best solution returned, products={products.state(0)} results in the objective value of {model.objective.state(0)}."
 )
