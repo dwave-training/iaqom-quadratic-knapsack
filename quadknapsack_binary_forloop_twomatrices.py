@@ -78,5 +78,5 @@ print(
 # TODO: Return the best solution's objective value and store it in `objective_value`.
 
 
-print(f"Objective Value of the best solution: {objective_value}")
+print(f"Objective value of the best solution: {objective_value}")
 print(f"Products (at state 0): {products_state}")
