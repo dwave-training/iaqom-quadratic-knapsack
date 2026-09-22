@@ -41,7 +41,7 @@ Open `quadknapsack_binary_forloop_twomatrices.py`.
 
    6. Instantiate the nonlinear sampler and name it `sampler`.
    
-   7. Submit the nonlinear model to the Stride hybrid solver. Label your problem "Quadknap_binary_forloop_twomatrices" using the `label` parameter. The label is case-sensitive and uses an underscore. When you submit your problem, the label displays on your Leap dashboard.
+   7. Submit the nonlinear model to the Stride solver. Label your problem "Quadknap_binary_forloop_twomatrices" using the `label` parameter. The label is case-sensitive and uses an underscore. When you submit your problem, the label displays on your Leap dashboard.
 
    8. Return the best solution for the binary variable symbol and store it in `products_state`.
 
@@ -49,7 +49,7 @@ Open `quadknapsack_binary_forloop_twomatrices.py`.
 
 
 ## Exercise 2: Model quadratic knapsack using binary variables with matrix multiplication
-In the second exercise, use binary variables and matrix multiplication instead of a `for` loop, and submit the problem to the Stride hybrid solver to obtain the best solution.
+In the second exercise, use binary variables and matrix multiplication instead of a `for` loop, and submit the problem to the Stride solver to obtain the best solution.
 
 Follow the instructions below, then submit the problem to the Stride solver.
 
@@ -69,7 +69,7 @@ Open `quadknapsack_binary_matmul_twomatrices.py`.
 
    7. Instantiate the nonlinear sampler and name it `sampler`.
    
-   8. Submit the nonlinear model to the Stride hybrid solver. Label your problem "Quadknap_binary_matmul_twomatrices" using the `label` parameter. The label is case-sensitive and uses an underscore. When you submit your problem, the label displays on your Leap dashboard.
+   8. Submit the nonlinear model to the Stride solver. Label your problem "Quadknap_binary_matmul_twomatrices" using the `label` parameter. The label is case-sensitive and uses an underscore. When you submit your problem, the label displays on your Leap dashboard.
 
    9. Return the best solution for the binary variable symbol and store it in `products_state`.
 
@@ -80,8 +80,7 @@ Open `quadknapsack_binary_matmul_twomatrices.py`.
 The following example implements the quadratic knapsack problem using a set variable instead of
 binary variables. Some parts of the code should look familiar from the model using binary variables; however,
 there are some differences, particularly in how the objective function is structured. Here, matrix
-multiplication is used to formulate the objective function, and the model is submitted to the Stride
-hybrid solver to obtain the best solution.
+multiplication is used to formulate the objective function, and the model is submitted to the Stride solver to obtain the best solution.
 
 The code in the repo is intended to help you explore the model as part of the online course and, thus, does not contain any `TODO` sections.
 

@@ -68,7 +68,7 @@ model_two_matmul.add_constraint((product_weights * products).sum() <= container_
 # TODO: Submit the nonlinear model to the Stride hybrid solver. Use the label "Quadknap_binary_matmul_twomatrices", which is case-sensitive and uses an underscore.
 
 
-# Process and print solution
+# Process and print solution.
 print(
     "\nSubmit the quadratic knapsack problem to the Stride hybrid solver using an objective function with the @ operator and two separate matrices for individual and interaction values.\n"
 )

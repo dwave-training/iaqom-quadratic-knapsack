@@ -8,7 +8,7 @@ Given constants:
     weight_limit (int): The weight capacity of the shipping container.
 """
 
-# The required packages
+# The required packages.
 import numpy as np
 from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
@@ -35,10 +35,10 @@ product_weights = model.constant(weights)
 container_weight_limit = model.constant(weight_limit)
 eye = model.constant(np.eye(n))  # used to build the indicator vector
 
-# Define the decision variable: set of packed product indices (dynamic size 0 to n)
+# Define the decision variable: set of packed product indices (dynamic size 0 to n).
 products = model.set(n)
 
-# Build a fixed-shape binary indicator from the set
+# Build a fixed-shape binary indicator from the set.
 x = eye[products].sum(axis=0)
 
 # Set the objective function: Maximize the total value of products in the container.
