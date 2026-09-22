@@ -22,7 +22,7 @@ Open `quadknapsack_binary_forloop_twomatrices.py`.
 
    1. Import the relevant package(s).
 
-   2. Add the constant `pairwise_interaction` to the model object and name it `interaction_values`.
+   2. Add the `pairwise_interaction` constant to the model object and name it `interaction_values`.
    
    3. Define the following quadratic objective using a `for` loop, and store it in `quadratic_obj`. Use the `sum()` function with a generator expression containing nested `for` clauses to calculate the interaction terms for all unique pairs of products. 
 
