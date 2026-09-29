@@ -6,21 +6,22 @@ Self-contained script that:
   2. Builds and runs both the binary-variable formulation and the set-variable
      formulation of the same quadratic knapsack problem across a range of solver
      time limits.
-  3. Plots both formulations' mean-objective-vs-time-limit curves on the same,
+  3. Plots 'mean_objective' vs 'requested_time_limit' curves for both formulations on the same,
      color-coded figure for direct comparison.
 
 Matrix generation notes:
-  - Off-diagonal (pairwise interaction) entries are drawn from [LOW, HIGH),
-    symmetrized, and then ~ZERO_FRACTION of them are randomly zeroed out
-    (default 50%), while keeping the matrix symmetric.
-  - The diagonal is filled with random nonzero integers.
-  - Matrix size N is a hyperparameter.
+    - Off-diagonal (pairwise interaction) entries are drawn from
+        [VALUE_LOW, VALUE_HIGH), symmetrized, and then approximately ZERO_FRACTION
+        of them are randomly zeroed out (default 50%), while keeping the matrix
+        symmetric.
+    - The diagonal is filled with random nonzero integers.
+    - Matrix size N is a hyperparameter.
 
 Weight/capacity notes:
-  - Item weights are random integers in [WEIGHT_LOW, WEIGHT_HIGH).
-  - The knapsack weight_limit ("capacity") is set to CAPACITY_FRACTION of the
-    total weight of all items. CAPACITY_FRACTION should be chosen in the
-    range 0.2-0.5 (20%-50% of total weight).
+    - Item weights are random integers in [WEIGHT_LOW, WEIGHT_HIGH).
+    - The knapsack `weight_limit` ("capacity") is set to CAPACITY_FRACTION of the
+        total weight of all items. CAPACITY_FRACTION should be chosen in the
+        range 0.2-0.5 (20%-50% of total weight).
 """
 
 import matplotlib.pyplot as plt
@@ -30,26 +31,25 @@ from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
 
 # Hyperparameters
-N = 300  # matrix / problem size (n x n). Default 10x10.
-SEED = 42  # RNG seed, fixed for reproducibility
+N = 300  # The number of items, which is also the dimension of the n x n values matrix.
+SEED = 42  # The random number generator seed is fixed for reproducibility.
 
-# Matrix (pairwise interaction) generation
-VALUE_LOW, VALUE_HIGH = 1, 25  # off-diagonal value range before zeroing
-DIAG_LOW, DIAG_HIGH = 1, 100  # diagonal value range
-ZERO_FRACTION = 0.5  # fraction of off-diagonal entries set to 0
+# Parameters for generating the pairwise interaction matrix.
+VALUE_LOW, VALUE_HIGH = 1, 25  # The range of off-diagonal values before some are zeroed out.
+DIAG_LOW, DIAG_HIGH = 1, 100  # The range of diagonal values.
+ZERO_FRACTION = 0.5  # The fraction of off-diagonal entries that are set to 0.
 
 # Weights / capacity
-WEIGHT_LOW, WEIGHT_HIGH = 1, 30  # per-item weight range
-CAPACITY_FRACTION = 0.5  # weight_limit = CAPACITY_FRACTION * sum(weights)
-# choose within [0.2, 0.5]
+WEIGHT_LOW, WEIGHT_HIGH = 1, 30  # The range of weights for each item.
+CAPACITY_FRACTION = 0.5  # Choose a value within [0.2, 0.5], weight_limit = CAPACITY_FRACTION * sum(weights)
 
 # Solver run configuration
-TIME_LIMITS = [5, 10, 20, 60, 90]  # seconds
-SAMPLES_PER_TIME = 3
+TIME_LIMITS = [5, 10, 20, 60, 90]  # The requested time limits in seconds.
+SAMPLES_PER_TIME = 3  # The number of samples taken at each time limit.
 
-# Additonal constraints to add complexity to the problem (optional)
-ADDITIONAL_CONSTRAINTS = False  # Set to True to add additional constraints
-k = 5  # Number of items in the random subset S for the additional constraint
+# Additional constraints to add complexity to the problem (optional).
+ADDITIONAL_CONSTRAINTS = False  # Set to True to add the additional constraints.
+k = 5  # The number of items in the random subset used by the additional constraints.
 
 if ADDITIONAL_CONSTRAINTS:
     rng_constraints = np.random.default_rng(SEED)
@@ -60,20 +60,32 @@ if ADDITIONAL_CONSTRAINTS:
 
 def generate_matrix(n, seed, low=1, high=25, diag_low=1, diag_high=100, zero_fraction=0.5):
     """Generate a random, symmetric, nonzero-diagonal integer matrix where
-    ~zero_fraction of the off-diagonal (pairwise interaction) entries are 0.
-    - Off-diagonal entries are random integers in [low, high), symmetrized.
+    approximately `zero_fraction` of the off-diagonal (pairwise interaction)
+    entries are 0.
+    - Off-diagonal entries are random integers in [VALUE_LOW, VALUE_HIGH), symmetrized.
     - A random symmetric mask zeroes out `zero_fraction` of the off-diagonal
       entries (applied to the upper triangle, then mirrored).
     - The diagonal is overwritten with random nonzero integers in
       [diag_low, diag_high].
+
+    Args:
+        n: The dimension of the square matrix.
+        seed: The random number generator seed.
+        low: The lower bound for off-diagonal values (inclusive).
+        high: The upper bound for off-diagonal values (exclusive).
+        diag_low: The lower bound for diagonal values (inclusive).
+        diag_high: The upper bound for diagonal values (exclusive).
+        zero_fraction: The fraction of off-diagonal entries to set to 0.
+
+    Returns:
+        A symmetric n x n integer matrix with the specified properties.
     """
     rng = np.random.default_rng(seed)
 
     A = rng.integers(low=low, high=high, size=(n, n))
     matrix = (A + A.T) // 2
 
-    # Build a symmetric zero-mask covering the requested fraction of the
-    # off-diagonal entries.
+    # Build a symmetric zero-mask covering the requested fraction of the off-diagonal entries.
     zero_mask_upper = rng.random((n, n)) < zero_fraction
     zero_mask_upper = np.triu(zero_mask_upper, k=1)
     zero_mask = zero_mask_upper | zero_mask_upper.T
@@ -86,6 +98,17 @@ def generate_matrix(n, seed, low=1, high=25, diag_low=1, diag_high=100, zero_fra
 
 
 def generate_weights(n, seed, low=1, high=30):
+    """Generate a random weight vector for the knapsack problem.
+
+    Args:
+        n: The number of items.
+        seed: The random number generator seed.
+        low: The lower bound for weights (inclusive).
+        high: The upper bound for weights (exclusive).
+
+    Returns:
+        A length-n integer array of weights.
+    """
     rng = np.random.default_rng(seed)
     return rng.integers(low, high, size=n)
 
@@ -97,9 +120,9 @@ weight_limit = CAPACITY_FRACTION * weights.sum()
 
 if weight_limit < weights.min():
     raise ValueError(
-        f"weight_limit ({weight_limit:.2f}) is smaller than the lightest item "
-        f"({weights.min()}) - no item could ever be selected. Increase "
-        f"CAPACITY_FRACTION or check WEIGHT_LOW/WEIGHT_HIGH."
+        f"The weight limit ({weight_limit:.2f}) is smaller than the lightest item "
+        f"({weights.min()}), so no item can be selected. Increase CAPACITY_FRACTION "
+        "or lower WEIGHT_LOW and WEIGHT_HIGH."
     )
 
 
@@ -110,27 +133,34 @@ half_values_interaction_matrix[np.diag_indices_from(half_values_interaction_matr
 )
 
 
-# Formulation 1: binary
+# Formulation 1: Using a binary variable
 def build_binary_model():
+    """Build the binary variable formulation of the quadratic knapsack problem.
+
+    Returns:
+        A tuple containing the model and the binary variable representing the selected products.
+    """
+    # Initialize the nonlinear model object.
     model_binary = Model()
 
-    # Add the constants to the model object
+    # Add the constants to the model object.
     values = model_binary.constant(half_values_interaction_matrix)
     product_weights = model_binary.constant(weights)
     container_weight_limit = model_binary.constant(weight_limit)
 
-    # Define the binary variable
+    # Define the binary variable.
     products = model_binary.binary(N)
 
-    # Objective function and constraint
+    # Set the objective function: Maximize the total value of products in the container.
     model_binary.minimize(-(products @ values @ products))
+    
+    # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
     model_binary.add_constraint((product_weights * products).sum() <= container_weight_limit)
 
     if ADDITIONAL_CONSTRAINTS:
-        model_binary.add_constraint(
-            products.sum() <= N // 2
-        )  # At most half the total number of items can be selected
-        # add a constraint that at least one item from the subset S must be selected
+        # At most half of the items can be selected.
+        model_binary.add_constraint(products.sum() <= N // 2)
+        # At least one item from each random subset must be selected.
         model_binary.add_constraint(products[S_1].sum() >= 1)
         model_binary.add_constraint(products[S_2].sum() >= 1)
         model_binary.add_constraint(products[S_3].sum() >= 1)
@@ -140,37 +170,49 @@ def build_binary_model():
     return model_binary, products
 
 
-# Formulation 2: set variable
+# Formulation 2: Using a set variable
 def build_set_model():
+    """Build the set variable formulation of the quadratic knapsack problem.
+
+    Returns:
+        A tuple containing the model and the set variable representing the selected products.
+    """
+    # Initialize the nonlinear model object.
     model_set = Model()
 
+    # Identity matrix of dimensions n x n.
     identity_matrix = np.eye(N)
 
-    # Add the constants to the model object
+    # Add the constants to the model object.
     values = model_set.constant(half_values_interaction_matrix)
     product_weights = model_set.constant(weights)
     container_weight_limit = model_set.constant(weight_limit)
 
-    # Define the eye matrix for building the indicator vector
+    # Add the identity matrix as a constant. It is used to build the indicator vector.
     eye = model_set.constant(identity_matrix)
 
-    # Define the set variable
+    # Define the set variable.
     products = model_set.set(N)
 
+    # Compute the total weight of the selected products. Advanced indexing works with a set.
+    total_weight = product_weights[products].sum()
+    
+    # Build a fixed-shape binary indicator vector of length-n from the set and store it in `products_selected`.
+    products_selected = eye[products].sum(axis=0)
+
+    # Set the objective function and add the weight constraint.
+    model_set.minimize(-(products_selected @ values @ products_selected))
+    
     # Linear term: total weight (advanced indexing works with a set)
     total_weight = product_weights[products].sum()
-    products_selected = eye[products].sum(axis=0)
-    # products_selected = identity_matrix[products].sum(axis=0)
-    # -> model_set.minimize(-(products_selected @ values @ products_selected))
-    # Objective function and constraint
-    model_set.minimize(-(products_selected @ values @ products_selected))
+    
+    # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
     model_set.add_constraint(total_weight <= container_weight_limit)
 
     if ADDITIONAL_CONSTRAINTS:
-        model_set.add_constraint(
-            products.size() <= N // 2
-        )  # At most half the total number of items can be selected
-        # add a constraint that at least one item from the subset S must be selected
+        # At most half of the items can be selected.
+        model_set.add_constraint(products.size() <= N // 2)
+        # At least one item from each random subset must be selected.
         model_set.add_constraint(products_selected[S_1].sum() >= 1)
         model_set.add_constraint(products_selected[S_2].sum() >= 1)
         model_set.add_constraint(products_selected[S_3].sum() >= 1)
@@ -187,11 +229,11 @@ FORMULATIONS = [
 ]
 rows_by_formulation = {label: [] for label, _ in FORMULATIONS}
 
-# print state size and node size for each formulation
+# Print state size and node size for each formulation.
 for label, build_fn in FORMULATIONS:
     model, products = build_fn()
     print(
-        f"{label} formulation: state size = {model.state_size()}, node size = {model.num_nodes()}, decision state size ={model.decision_state_size()}"
+        f"{label} formulation: state size = {model.state_size()}, node size = {model.num_nodes()}, decision state size = {model.decision_state_size()}"
     )
 
 # Loop over time limits and samples, running both formulations for each combination.
@@ -213,7 +255,7 @@ with StrideHybridSolver() as sampler:
                 )
 
 
-# Summarize + combined, color-coded plot
+# Summarize the results and create a combined, color-coded plot.
 def summarize(rows):
     df = pd.DataFrame(rows)
     summary = (
@@ -222,6 +264,7 @@ def summarize(rows):
     return df, summary
 
 
+# Retrieve the summarized results for both formulations.
 binary_df, binary_summary = summarize(rows_by_formulation["binary"])
 set_df, set_summary = summarize(rows_by_formulation["set"])
 
@@ -234,7 +277,7 @@ print(binary_summary.to_string(index=False))
 print("\nSet formulation - solution quality summary:")
 print(set_summary.to_string(index=False))
 
-# Combine raw data from both formulations
+# Combine raw data from both formulations.
 combined_df = pd.concat([binary_df, set_df], ignore_index=True)
 
 # Comparison plot
