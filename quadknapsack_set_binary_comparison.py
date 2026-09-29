@@ -1,5 +1,5 @@
 """
-combined_solution_quality_time.py
+quadknapsack_set_binary_comparison.py
 
 Self-contained script that:
     1. Generates a shared random matrix.
