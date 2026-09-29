@@ -153,7 +153,6 @@ def build_binary_model():
 
     # Set the objective function: Maximize the total value of products in the container.
     model_binary.minimize(-(products @ values @ products))
-    
     # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
     model_binary.add_constraint((product_weights * products).sum() <= container_weight_limit)
 
@@ -193,10 +192,8 @@ def build_set_model():
 
     # Define the set variable.
     products = model_set.set(N)
-
-    # Compute the total weight of the selected products. Advanced indexing works with a set.
     
-    # Build a fixed-shape binary indicator vector of length-n from the set and store it in `products_selected`.
+    # Build a fixed-shape binary indicator vector of length n from the set.
     products_selected = eye[products].sum(axis=0)
 
     # Set the objective function and add the weight constraint.
