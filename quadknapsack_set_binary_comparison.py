@@ -2,12 +2,12 @@
 combined_solution_quality_time.py
 
 Self-contained script that:
-  1. Generates a shared random matrix in-memory.
-  2. Builds and runs both the binary-variable formulation and the set-variable
-     formulation of the same quadratic knapsack problem across a range of solver
-     time limits.
-  3. Plots 'mean_objective' vs 'requested_time_limit' curves for both formulations on the same,
-     color-coded figure for direct comparison.
+    1. Generates a shared random matrix.
+    2. Builds and runs both the binary-variable formulation and the set-variable
+        formulation of the same quadratic knapsack problem across a range of solver
+        time limits.
+    3. Plots both formulations' mean-objective-vs-time-limit curves on the same,
+        color-coded figure for direct comparison.
 
 Matrix generation notes:
     - Off-diagonal (pairwise interaction) entries are drawn from
@@ -66,7 +66,7 @@ def generate_matrix(n, seed, low=1, high=25, diag_low=1, diag_high=100, zero_fra
     - A random symmetric mask zeroes out `zero_fraction` of the off-diagonal
       entries (applied to the upper triangle, then mirrored).
     - The diagonal is overwritten with random nonzero integers in
-      [diag_low, diag_high].
+      [diag_low, diag_high).
 
     Args:
         n: The dimension of the square matrix.
@@ -195,7 +195,6 @@ def build_set_model():
     products = model_set.set(N)
 
     # Compute the total weight of the selected products. Advanced indexing works with a set.
-    total_weight = product_weights[products].sum()
     
     # Build a fixed-shape binary indicator vector of length-n from the set and store it in `products_selected`.
     products_selected = eye[products].sum(axis=0)
@@ -257,6 +256,15 @@ with StrideHybridSolver() as sampler:
 
 # Summarize the results and create a combined, color-coded plot.
 def summarize(rows):
+    """Summarize the results of the experiments.
+
+    Args:
+        rows: A list of dictionaries containing the raw results for each run.
+
+    Returns:
+        A tuple containing the raw DataFrame and a summary DataFrame with the minimum and mean
+        minimized objective for each requested time limit.
+    """
     df = pd.DataFrame(rows)
     summary = (
         df.groupby("requested_time_limit")["minimized_objective"].agg(["min", "mean"]).reset_index()
