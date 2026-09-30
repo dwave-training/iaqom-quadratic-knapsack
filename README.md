@@ -91,8 +91,8 @@ Open `quadknapsack_set_matmul_onematrix.py`.
    
    2. Define the set decision variable and store it in `products`. A set symbol is used to indicate the packed product indices (dynamic size 0 to `n`). Use `n` to determine the total number of elements in the set.
 
-   3. Build a fixed-shape binary indicator vector of length `n` from the set and store it in `products_selected`. Use the `products` indices to select the corresponding rows of the identity matrix created. Then, use `.sum(axis=0)` to add the selected rows column by column.
-   The result `products_selected` is an indicator vector, where `products_selected[i] = 1` if item `i` is in the chosen set, and 0 otherwise. In other words, `products` stores the selected products in a non-fixed sized set, while `products_selected` provides another representation of that same selection but of a fixed length `n` where each position indicates whether the corresponding product is included in the set.
+   3. Build a fixed-shape binary indicator vector of length `n` from the set and store it in `products_selected`. Use the `products` indices to select the corresponding rows of the identity matrix created above. Then, use `.sum(axis=0)` to add the selected rows column by column.
+   The result `products_selected` is an indicator vector, where `products_selected[i] = 1` if item `i` is in the chosen set, and 0 otherwise. In other words, `products` stores the selected products as a set with non-fixed size, while `products_selected` provides another representation of that same selection but of a fixed length `n` where each position indicates whether the corresponding product is included in the set.
 
-   4. Set the objective function, using the `@` operator, to maximize the total value of products in the container. The row vector `products_selected`, `values`, and `products_selected` reshaped to a column vector are mutiplied together, resulting in a single-scalar product that represents the total value of the selected products. 
+   4. Set the objective function, using the `@` operator, to maximize the total value of selected products. The row vector `products_selected`, `values`, and `products_selected` reshaped to a column vector are multiplied together, resulting in a single scalar value that represents the total value of the selected products. 
 

@@ -29,7 +29,7 @@ weight_limit = 8
 # Number of available products to pick from.
 n = len(weights)
 
-# Identity matrix of dimensions nxn
+# Identity matrix of dimensions nxn.
 identity_matrix = np.eye(n)
 
 # Add the constants to the model object.
@@ -40,16 +40,16 @@ container_weight_limit = model_set.constant(weight_limit)
 # Add the constant `identity_matrix` to the model object. It is used to build the indicator vector.
 eye = model_set.constant(identity_matrix)  
 
-#TODO: Define the set variable and store it in `products`. Use `n` to determine the total number of elements in the set. 
+# TODO: Define the set variable and store it in `products`. Use `n` to determine the total number of elements in the set. 
 products = model_set.set(n)
 
-#TODO: Build a fixed-shape binary indicator vector of length-n from the set and store it in `products_selected`. 
+# TODO: Build a fixed-shape binary indicator vector of length `n` from the set and store it in `products_selected`. 
 # Hint: Use the selected `products` indices to select the corresponding rows of the identity matrix created.
 # Use `.sum(axis=0)` to add the selected rows column by column.
 products_selected = eye[products].sum(axis=0)
 
-#TODO: Set the objective function: Maximize the total value of products in the container.
-model_set.minimize(- (products_selected @ values @ products_selected) )
+# TODO: Set the objective function: Maximize the total value of products in the container.
+model_set.minimize(-(products_selected @ values @ products_selected))
 
 # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
 model_set.add_constraint(product_weights[products].sum() <= container_weight_limit)
