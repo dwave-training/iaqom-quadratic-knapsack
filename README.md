@@ -96,3 +96,63 @@ Open `quadknapsack_set_matmul_onematrix.py`.
 
    4. Set the objective function, using the `@` operator, to maximize the total value of selected products. The row vector `products_selected`, `values`, and `products_selected` reshaped to a column vector are multiplied together, resulting in a single scalar value that represents the total value of the selected products. 
 
+## Example: Quadratic Knapsack Comparison Script
+This script is intended to serve as a hands-on illustration of how modeling choices (not just the underlying problem) can affect solver behavior and, thus, does not contain any TODO sections.
+
+This script compares two formulations of the same quadratic knapsack problem:
+
+- Binary formulation: each item is treated as a binary decision variable.
+- Set formulation: the selected items are represented as a set.
+
+The two formulations solve the exact same problem instance and should converge to the same optimal objective value. In practice, different problem input parameters can affect solution quality over time.
+
+### Script overview
+
+1. Generates a random quadratic knapsack instance with:
+   - a symmetric interaction matrix for pairwise item values,
+   - a vector of item weights,
+   - a capacity determined by the total item weight.
+2. Builds two optimization models for the same problem instance:
+   - `build_binary_model(...)`
+   - `build_set_model(...)`
+3. Runs both formulations across a range of time limits and repeated samples.
+4. Summarizes the objective values and saves a comparison plot.
+
+### Main parameters to change
+
+These are the main settings that affect the problem and the results. In practice, you usually only need to edit the values near the top of the script to explore different instances and solver behaviors.
+
+| Parameter | What it does |
+| --- | --- |
+| `N` | Number of items. Larger values make the problem harder and slower. |
+| `VALUE_LOW`, `VALUE_HIGH` | Range for off-diagonal interaction values. |
+| `DIAG_LOW`, `DIAG_HIGH` | Range for diagonal values in the interaction matrix. |
+| `ZERO_FRACTION` | Fraction of off-diagonal entries set to zero; higher values make the matrix sparser. |
+| `WEIGHT_LOW`, `WEIGHT_HIGH` | Range for item weights. |
+| `CAPACITY_FRACTION` | Knapsack capacity as a fraction of total weight. Smaller values create a tighter problem. |
+| `TIME_LIMITS` | Solver time limits to compare. |
+| `SAMPLES_PER_TIME` | Number of repeated runs per time limit. |
+
+### Good experiments to try
+
+- Change `N` to see how the formulations scale.
+- Adjust `ZERO_FRACTION` to change matrix sparsity.
+- Pick different values `CAPACITY_FRACTION` for a tighter knapsack constraint.
+- Change `TIME_LIMITS` to compare performance more thoroughly.
+
+Larger problem sizes and longer time limits can take a long time to run. For larger instances, it is best to keep the solver time limits at or below 30 seconds per run so the experiment remains practical.
+
+
+### Output
+
+The script prints:
+
+- model size information for each formulation,
+- summary tables of objective values by time limit,
+- a plot comparing the binary and set formulations.
+
+The output file is named:
+
+```text
+combined_solution_quality_time_n{N}_runs{SAMPLES_PER_TIME}.png
+```
