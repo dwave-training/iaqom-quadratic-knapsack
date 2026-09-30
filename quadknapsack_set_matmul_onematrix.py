@@ -14,7 +14,7 @@ from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
 
 # Initialize the nonlinear model object.
-model = Model()
+model_set = Model()
 
 # Constants
 # The values of individual products and the interactions associated with selecting pairs of products together.
@@ -29,34 +29,41 @@ weight_limit = 8
 # Number of available products to pick from.
 n = len(weights)
 
+# Identity matrix of dimensions nxn.
+identity_matrix = np.eye(n)
+
 # Add the constants to the model object.
-values = model.constant(values_matrix)
-product_weights = model.constant(weights)
-container_weight_limit = model.constant(weight_limit)
-eye = model.constant(np.eye(n))  # used to build the indicator vector
+values = model_set.constant(values_matrix)
+product_weights = model_set.constant(weights)
+container_weight_limit = model_set.constant(weight_limit)
 
-# Define the decision variable: set of packed product indices (dynamic size 0 to n).
-products = model.set(n)
+# Add the constant `identity_matrix` to the model object. It is used to build the indicator vector.
+eye = model_set.constant(identity_matrix)
 
-# Build a fixed-shape binary indicator from the set.
-x = eye[products].sum(axis=0)
+# TODO: Define the set variable and store it in `products`. Use `n` to determine the total number of elements in the set.
 
-# Set the objective function: Maximize the total value of products in the container.
-model.minimize(-(x @ values @ x).sum())
+
+# TODO: Build a fixed-shape binary indicator vector of length `n` from the set and store it in `products_selected`.
+# Hint: Use the selected `products` indices to select the corresponding rows of the identity matrix created.
+# Use `.sum(axis=0)` to add the selected rows column by column.
+
+
+# TODO: Set the objective function: Maximize the total value of products in the container.
+
 
 # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
-model.add_constraint(product_weights[products].sum() <= container_weight_limit)
+model_set.add_constraint(product_weights[products].sum() <= container_weight_limit)
 
 # Lock the model explicitly to prevent changes.
-model.lock()
+model_set.lock()
 
 # Instantiate the nonlinear sampler.
 sampler = StrideHybridSolver()
 
 # Submit the nonlinear model to the Stride hybrid solver.
-sampler.sample(model, label="Quadknap_set_matmul_onematrix")
+sampler.sample(model_set, label="Quadknap_set_matmul_onematrix")
 
 # Return the best solution for the set variable symbol and its objective value.
 print(
-    f"The best solution returned, products={products.state(0)} results in the objective value of {model.objective.state(0)}."
+    f"The best solution returned using a set as the decision variable, products={products.state(0)} results in the objective value of {model_set.objective.state(0)}."
 )
