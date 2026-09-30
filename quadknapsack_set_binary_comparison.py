@@ -47,7 +47,7 @@ CAPACITY_FRACTION = (
 
 # Solver run configuration
 TIME_LIMITS = [5, 10, 20, 60, 90, 120]  # The requested time limits in seconds.
-SAMPLES_PER_TIME = 1  # The number of samples taken at each time limit.
+SAMPLES_PER_TIME = 5  # The number of samples taken at each time limit.
 
 
 def generate_matrix(n, seed, low=1, high=25, diag_low=1, diag_high=100, zero_fraction=0.5):
