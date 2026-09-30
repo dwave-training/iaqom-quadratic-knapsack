@@ -76,13 +76,23 @@ Open `quadknapsack_binary_matmul_twomatrices.py`.
    10. Return the best solution's objective value and store it in `objective_value`.
 
 
-## Example: Quadratic knapsack code with sets
-The following example implements the quadratic knapsack problem using a set variable instead of
-binary variables. Some parts of the code should look familiar from the model using binary variables; however,
-there are some differences, particularly in how the objective function is structured. Here, matrix
+## Exercise 3: Model quadratic knapsack with sets
+In the third exercise, use a set variable instead of binary variables. Some parts of the code should look familiar from the model using binary variables; however, there are some differences, particularly in how the objective function is structured. Here, matrix
 multiplication is used to formulate the objective function, and the model is submitted to the Stride solver to obtain the best solution.
 
-The code in the repo is intended to help you explore the model as part of the online course and, thus, does not contain any `TODO` sections.
+Follow the instructions below, then submit the problem to the Stride solver.
 
-Open `quadknapsack_set_matmul_onematrix.py` and follow along on the course page *Quadratic Knapsack Code With Sets*.
-  
+Open `quadknapsack_set_matmul_onematrix.py`.
+
+   1. As you explore the starter code, notice two important differences: 
+      -  A single `values_matrix` is used to represent the values of individual products and the interactions associated with selecting pairs of products together. In the earlier formulation, the `pairwise_interaction` matrix had zeros on the diagonal (because an item does not interact with itself), while the individual product values were stored separately in a one-dimensional array. Here, these two data structures are combined into one `values_matrix` where the diagonal entries are the values of individual products (linear values) and the off-diagonal entries are the pairwise added values (quadratic values).
+
+      -  The NumPy `eye` function is used to create an identity matrix of dimensions `n x n`. It is stored in `identity_matrix`. This function returns a 2-D array with 1s on the diagonal and 0s elsewhere (also known as an identity matrix). The resulting matrix is added to the model as a constant, which will be used to build an indicator vector. You will need this for the objective function. Since a set is a dynamic array, its shape is not fixed, which has implications for the code.
+   
+   2. Define the set decision variable and store it in `products`. A set symbol is used to indicate the packed product indices (dynamic size 0 to `n`). Use `n` to determine the total number of elements in the set.
+
+   3. Build a fixed-shape binary indicator vector of length `n` from the set and store it in `products_selected`. Use the `products` indices to select the corresponding rows of the identity matrix created above. Then, use `.sum(axis=0)` to add the selected rows column by column.
+   The result `products_selected` is an indicator vector, where `products_selected[i] = 1` if item `i` is in the chosen set, and 0 otherwise. In other words, `products` stores the selected products as a set with non-fixed size, while `products_selected` provides another representation of that same selection but of a fixed length `n` where each position indicates whether the corresponding product is included in the set.
+
+   4. Set the objective function, using the `@` operator, to maximize the total value of selected products. The row vector `products_selected`, `values`, and `products_selected` reshaped to a column vector are multiplied together, resulting in a single scalar value that represents the total value of the selected products. 
+
