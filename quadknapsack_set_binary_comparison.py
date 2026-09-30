@@ -41,28 +41,20 @@ ZERO_FRACTION = 0.5  # The fraction of off-diagonal entries that are set to 0.
 
 # Weights / capacity
 WEIGHT_LOW, WEIGHT_HIGH = 1, 30  # The range of weights for each item.
-CAPACITY_FRACTION = 0.5  # Choose a value within [0.2, 0.5], weight_limit = CAPACITY_FRACTION * sum(weights)
+CAPACITY_FRACTION = (
+    0.5  # Choose a value within [0.2, 0.5], weight_limit = CAPACITY_FRACTION * sum(weights)
+)
 
 # Solver run configuration
-TIME_LIMITS = [5, 10, 20, 60, 90]  # The requested time limits in seconds.
-SAMPLES_PER_TIME = 3  # The number of samples taken at each time limit.
-
-# Additional constraints to add complexity to the problem (optional).
-ADDITIONAL_CONSTRAINTS = False  # Set to True to add the additional constraints.
-k = 5  # The number of items in the random subset used by the additional constraints.
-
-if ADDITIONAL_CONSTRAINTS:
-    rng_constraints = np.random.default_rng(SEED)
-    S_1 = rng_constraints.choice(N, size=k, replace=False)
-    S_2 = rng_constraints.choice(N, size=k + 1, replace=False)
-    S_3 = rng_constraints.choice(N, size=k + 2, replace=False)
+TIME_LIMITS = [5, 10, 20, 60, 90, 120]  # The requested time limits in seconds.
+SAMPLES_PER_TIME = 1  # The number of samples taken at each time limit.
 
 
 def generate_matrix(n, seed, low=1, high=25, diag_low=1, diag_high=100, zero_fraction=0.5):
     """Generate a random, symmetric, nonzero-diagonal integer matrix where
     approximately `zero_fraction` of the off-diagonal (pairwise interaction)
     entries are 0.
-    - Off-diagonal entries are random integers in [VALUE_LOW, VALUE_HIGH), symmetrized.
+    - Off-diagonal entries are random integers in [low, high), symmetrized.
     - A random symmetric mask zeroes out `zero_fraction` of the off-diagonal
       entries (applied to the upper triangle, then mirrored).
     - The diagonal is overwritten with random nonzero integers in
@@ -113,28 +105,8 @@ def generate_weights(n, seed, low=1, high=30):
     return rng.integers(low, high, size=n)
 
 
-# Generate the shared matrix and weights.
-values_matrix = generate_matrix(N, SEED, VALUE_LOW, VALUE_HIGH, DIAG_LOW, DIAG_HIGH, ZERO_FRACTION)
-weights = generate_weights(N, SEED, WEIGHT_LOW, WEIGHT_HIGH)
-weight_limit = CAPACITY_FRACTION * weights.sum()
-
-if weight_limit < weights.min():
-    raise ValueError(
-        f"The weight limit ({weight_limit:.2f}) is smaller than the lightest item "
-        f"({weights.min()}), so no item can be selected. Increase CAPACITY_FRACTION "
-        "or lower WEIGHT_LOW and WEIGHT_HIGH."
-    )
-
-
-# Precompute the half pairwise interaction matrix used by both formulations.
-half_values_interaction_matrix = 1 / 2 * values_matrix
-half_values_interaction_matrix[np.diag_indices_from(half_values_interaction_matrix)] = np.diag(
-    values_matrix
-)
-
-
 # Formulation 1: Using a binary variable
-def build_binary_model():
+def build_binary_model(half_values_interaction_matrix, weights, weight_limit):
     """Build the binary variable formulation of the quadratic knapsack problem.
 
     Returns:
@@ -156,21 +128,13 @@ def build_binary_model():
     # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
     model_binary.add_constraint((product_weights * products).sum() <= container_weight_limit)
 
-    if ADDITIONAL_CONSTRAINTS:
-        # At most half of the items can be selected.
-        model_binary.add_constraint(products.sum() <= N // 2)
-        # At least one item from each random subset must be selected.
-        model_binary.add_constraint(products[S_1].sum() >= 1)
-        model_binary.add_constraint(products[S_2].sum() >= 1)
-        model_binary.add_constraint(products[S_3].sum() >= 1)
-
     model_binary.lock()
 
     return model_binary, products
 
 
 # Formulation 2: Using a set variable
-def build_set_model():
+def build_set_model(half_values_interaction_matrix, weights, weight_limit):
     """Build the set variable formulation of the quadratic knapsack problem.
 
     Returns:
@@ -192,36 +156,64 @@ def build_set_model():
 
     # Define the set variable.
     products = model_set.set(N)
-    
+
     # Build a fixed-shape binary indicator vector of length n from the set.
     products_selected = eye[products].sum(axis=0)
 
     # Set the objective function and add the weight constraint.
     model_set.minimize(-(products_selected @ values @ products_selected))
-    
+
     # Linear term: total weight (advanced indexing works with a set)
     total_weight = product_weights[products].sum()
-    
+
     # Add the constraint: The total weight of selected products cannot exceed the container's weight limit.
     model_set.add_constraint(total_weight <= container_weight_limit)
-
-    if ADDITIONAL_CONSTRAINTS:
-        # At most half of the items can be selected.
-        model_set.add_constraint(products.size() <= N // 2)
-        # At least one item from each random subset must be selected.
-        model_set.add_constraint(products_selected[S_1].sum() >= 1)
-        model_set.add_constraint(products_selected[S_2].sum() >= 1)
-        model_set.add_constraint(products_selected[S_3].sum() >= 1)
 
     model_set.lock()
 
     return model_set, products
 
 
+# Summarize the results and create a combined, color-coded plot.
+def summarize(rows):
+    """Summarize the results of the experiments.
+
+    Args:
+        rows: A list of dictionaries containing the raw results for each run.
+
+    Returns:
+        A tuple containing the raw DataFrame and a summary DataFrame with the minimum and mean
+        minimized objective for each requested time limit.
+    """
+    df = pd.DataFrame(rows)
+    summary = (
+        df.groupby("requested_time_limit")["minimized_objective"].agg(["min", "mean"]).reset_index()
+    )
+    return df, summary
+
+
+# Generate the shared matrix and weights.
+values_matrix = generate_matrix(N, SEED, VALUE_LOW, VALUE_HIGH, DIAG_LOW, DIAG_HIGH, ZERO_FRACTION)
+weights = generate_weights(N, SEED, WEIGHT_LOW, WEIGHT_HIGH)
+weight_limit = CAPACITY_FRACTION * weights.sum()
+
+if weight_limit < weights.min():
+    raise ValueError(
+        f"The weight limit ({weight_limit:.2f}) is smaller than the lightest item "
+        f"({weights.min()}), so no item can be selected. Increase CAPACITY_FRACTION "
+        "or lower WEIGHT_LOW and WEIGHT_HIGH."
+    )
+
+# Precompute the half pairwise interaction matrix used by both formulations.
+half_values_interaction_matrix = 1 / 2 * values_matrix
+half_values_interaction_matrix[np.diag_indices_from(half_values_interaction_matrix)] = np.diag(
+    values_matrix
+)
+
 # Run both formulations across the same time limits / samples.
 FORMULATIONS = [
-    ("binary", build_binary_model),
-    ("set", build_set_model),
+    ("binary", lambda: build_binary_model(half_values_interaction_matrix, weights, weight_limit)),
+    ("set", lambda: build_set_model(half_values_interaction_matrix, weights, weight_limit)),
 ]
 rows_by_formulation = {label: [] for label, _ in FORMULATIONS}
 
@@ -251,30 +243,11 @@ with StrideHybridSolver() as sampler:
                 )
 
 
-# Summarize the results and create a combined, color-coded plot.
-def summarize(rows):
-    """Summarize the results of the experiments.
-
-    Args:
-        rows: A list of dictionaries containing the raw results for each run.
-
-    Returns:
-        A tuple containing the raw DataFrame and a summary DataFrame with the minimum and mean
-        minimized objective for each requested time limit.
-    """
-    df = pd.DataFrame(rows)
-    summary = (
-        df.groupby("requested_time_limit")["minimized_objective"].agg(["min", "mean"]).reset_index()
-    )
-    return df, summary
-
-
 # Retrieve the summarized results for both formulations.
 binary_df, binary_summary = summarize(rows_by_formulation["binary"])
 set_df, set_summary = summarize(rows_by_formulation["set"])
 
-total_runs = SAMPLES_PER_TIME
-suffix = f"n{N}_runs{total_runs}_additional_constraints{ADDITIONAL_CONSTRAINTS}_k{k}"
+suffix = f"n{N}_runs{SAMPLES_PER_TIME}"
 
 print("\nBinary formulation - solution quality summary:")
 print(binary_summary.to_string(index=False))
@@ -301,11 +274,11 @@ plt.plot(
     color="tab:red",
     label="Set formulation",
 )
-plt.xlabel("Time limit", fontsize=16)
-plt.ylabel("Objective value", fontsize=16)
+plt.xlabel("Time limit", fontsize=14)
+plt.ylabel("Objective value", fontsize=14)
 plt.title(
-    f"Solution quality over time: binary vs. set formulation (N={N}, runs={total_runs}, additional_constraints={ADDITIONAL_CONSTRAINTS}, k={k})",
-    fontsize=16,
+    "Binary vs. set formulation\n" f"Objective over time (N={N}, runs={SAMPLES_PER_TIME})",
+    fontsize=12,
 )
 plt.grid(True)
 plt.legend()
