@@ -104,7 +104,7 @@ This script compares two formulations of the same quadratic knapsack problem:
 - A binary formulation where each product is treated as a binary decision variable.
 - A set formulation where the selected products are represented as a set.
 
-The two formulations solve the same problem instance and, given enough time, should converge to the same optimal objective value. In practice, different problem input parameters can affect solution quality over time.
+Both formulations are intended to represent the same mathematical problem, so their true optimal objective values are equal. However, the solver is not guaranteed to find the optimum, even with a longer time limit; the solutions found can differ between formulations and runs. Changing the problem inputs can also affect solution quality.
 
 ### Script overview
 
@@ -118,7 +118,7 @@ The two formulations solve the same problem instance and, given enough time, sho
 3. Runs both formulations across a range of time limits and repeated samples.
 4. Summarizes the objective values across the tested time limits and saves the comparison plot.
 
-### Main parameters to change
+### Key parameters
 
 These are the main settings that affect the problem and the results. In practice, you usually only need to edit the values near the top of the script to explore different instances and solver behaviors.
 
@@ -133,11 +133,11 @@ These are the main settings that affect the problem and the results. In practice
 | `TIME_LIMITS` | Solver time limits to compare. |
 | `SAMPLES_PER_TIME` | Number of repeated runs per time limit. |
 
-### Good experiments to try
+### Suggested experiments
 
 - Change `N` to see how the formulations scale.
 - Adjust `ZERO_FRACTION` to change matrix sparsity.
-- Pick different values `CAPACITY_FRACTION` for a tighter knapsack constraint.
+- Pick different values of `CAPACITY_FRACTION` for a tighter knapsack constraint.
 - Change `TIME_LIMITS` to compare performance more thoroughly.
 
 Larger problem sizes and longer solver time limits can increase the experiment’s total runtime. For larger instances, keep the solver time limit at or below 30 seconds per run to keep the experiment practical.

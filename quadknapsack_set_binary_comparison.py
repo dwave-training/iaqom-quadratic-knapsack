@@ -14,7 +14,7 @@ Matrix generation notes:
         excluded. The entries are symmetrized, and approximately ZERO_FRACTION of
         them are randomly zeroed out (default 50%), while keeping the matrix symmetric.
     - Diagonal entries are filled with random nonzero integers.
-    - Matrix size N is a hyperparameter.
+    - The values matrix has dimensions N x N, where N is the number of products and the problem-size parameter.
 
 Weight/capacity notes:
     - Product weights are random integers in [WEIGHT_LOW, WEIGHT_HIGH).
@@ -29,7 +29,7 @@ import pandas as pd
 from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
 
-# Hyperparameters
+# Global parameters for the problem instance.
 N = 300  # The number of products, which is also the dimension of the n x n values matrix.
 SEED = 42  # The random number generator seed is fixed for reproducibility.
 
@@ -104,10 +104,11 @@ def generate_weights(n, seed, low=1, high=30):
 
 
 # Formulation 1: Using a binary variable
-def build_binary_model(n,half_values_interaction_matrix, weights, weight_limit):
+def build_binary_model(n, half_values_interaction_matrix, weights, weight_limit):
     """Build the binary variable formulation of the quadratic knapsack problem.
 
     Args:
+        n: The number of products.
         half_values_interaction_matrix: The values matrix with the off-diagonal entries halved.
         weights: The weight of each product.
         weight_limit: The weight capacity of the container.
@@ -141,6 +142,7 @@ def build_set_model(n, half_values_interaction_matrix, weights, weight_limit):
     """Build the set variable formulation of the quadratic knapsack problem.
 
     Args:
+        n: The number of products.
         half_values_interaction_matrix: The values matrix with the off-diagonal entries halved.
         weights: The weight of each product.
         weight_limit: The weight capacity of the container.
@@ -281,10 +283,10 @@ plt.plot(
     color="tab:red",
     label="Set formulation",
 )
-plt.xlabel("Time limit (seconds)", fontsize=14)
-plt.ylabel("Objective value", fontsize=14)
+plt.xlabel("Time Limit (seconds)", fontsize=14)
+plt.ylabel("Objective Value", fontsize=14)
 plt.title(
-    "Binary vs. Set Formulation\n" f"Objective Value Over time (n={N}, runs={SAMPLES_PER_TIME})",
+    "Binary vs. Set Formulation\n" f"Objective Value Over Time (N={N}, runs={SAMPLES_PER_TIME})",
     fontsize=12,
 )
 plt.grid(True)
