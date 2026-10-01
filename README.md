@@ -101,8 +101,8 @@ This script is intended to serve as a hands-on example of how modeling choices (
 
 This script compares two formulations of the same quadratic knapsack problem:
 
-- Binary formulation: each item is treated as a binary decision variable.
-- Set formulation: the selected items are represented as a set.
+- A binary formulation where each product is treated as a binary decision variable.
+- A set formulation where the selected products are represented as a set.
 
 The two formulations solve the same problem instance and, given enough time, should converge to the same optimal objective value. In practice, different problem input parameters can affect solution quality over time.
 
