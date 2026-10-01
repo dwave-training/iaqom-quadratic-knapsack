@@ -3,8 +3,10 @@ quadknapsack_set_binary_comparison.py
 
 Self-contained script that:
     1. Generates a shared random matrix.
-    2. Builds and runs both the binary-variable and set-variable formulations of the same quadratic knapsack problem across a range of solver time limits.
-    3. Plots the mean objective versus time limit for both formulations in a single, color-coded figure for direct comparison.
+    2. Builds and runs both the binary-variable and set-variable formulations of the same
+        quadratic knapsack problem across a range of solver time limits.
+    3. Plots the mean objective versus time limit for both formulations in a single,
+        color-coded figure for direct comparison.
 
 Matrix generation notes:
     - Off-diagonal (pairwise interaction) entries are drawn from
@@ -38,9 +40,8 @@ ZERO_FRACTION = 0.5  # The fraction of off-diagonal entries that are set to 0.
 
 # Weights / capacity
 WEIGHT_LOW, WEIGHT_HIGH = 1, 30  # The range of weights for each product.
-CAPACITY_FRACTION = (
-    0.5  # Choose a value within [0.2, 0.5], weight_limit = CAPACITY_FRACTION * sum(weights)
-)
+# Choose a value within [0.2, 0.5], weight_limit = CAPACITY_FRACTION * sum(weights)
+CAPACITY_FRACTION = 0.5
 
 # Solver run configuration
 TIME_LIMITS = [5, 10, 20, 60, 90, 120]  # The requested time limits in seconds.
@@ -106,6 +107,11 @@ def generate_weights(n, seed, low=1, high=30):
 def build_binary_model(n,half_values_interaction_matrix, weights, weight_limit):
     """Build the binary variable formulation of the quadratic knapsack problem.
 
+    Args:
+        half_values_interaction_matrix: The values matrix with the off-diagonal entries halved.
+        weights: The weight of each product.
+        weight_limit: The weight capacity of the container.
+
     Returns:
         A tuple containing the model and the binary variable representing the selected products.
     """
@@ -133,6 +139,11 @@ def build_binary_model(n,half_values_interaction_matrix, weights, weight_limit):
 # Formulation 2: Using a set variable
 def build_set_model(n, half_values_interaction_matrix, weights, weight_limit):
     """Build the set variable formulation of the quadratic knapsack problem.
+
+    Args:
+        half_values_interaction_matrix: The values matrix with the off-diagonal entries halved.
+        weights: The weight of each product.
+        weight_limit: The weight capacity of the container.
 
     Returns:
         A tuple containing the model and the set variable representing the selected products.
@@ -171,7 +182,6 @@ def build_set_model(n, half_values_interaction_matrix, weights, weight_limit):
     return model_set, products
 
 
-# Summarize the results and create a combined, color-coded plot.
 def summarize(rows):
     """Summarize the results of the experiments.
 
