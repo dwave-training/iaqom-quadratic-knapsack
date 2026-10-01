@@ -8,16 +8,16 @@ Self-contained script that:
 
 Matrix generation notes:
     - Off-diagonal (pairwise interaction) entries are drawn from
-        [VALUE_LOW, VALUE_HIGH), symmetrized, and then approximately ZERO_FRACTION
-        of them are randomly zeroed out (default 50%), while keeping the matrix
-        symmetric.
+        [VALUE_LOW, VALUE_HIGH), meaning VALUE_LOW is included and VALUE_HIGH is
+        excluded. The entries are symmetrized, and approximately ZERO_FRACTION of
+        them are randomly zeroed out (default 50%), while keeping the matrix symmetric.
     - Diagonal entries are filled with random nonzero integers.
     - Matrix size N is a hyperparameter.
 
 Weight/capacity notes:
     - Product weights are random integers in [WEIGHT_LOW, WEIGHT_HIGH).
     - The knapsack `weight_limit` ("capacity") is set to CAPACITY_FRACTION of the
-        total weight of all items. CAPACITY_FRACTION should be chosen in the
+        total weight of all products. CAPACITY_FRACTION should be chosen in the
         range 0.2-0.5 (20%-50% of total weight).
 """
 
@@ -28,7 +28,7 @@ from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
 
 # Hyperparameters
-N = 300  # The number of items, which is also the dimension of the n x n values matrix.
+N = 300  # The number of products, which is also the dimension of the n x n values matrix.
 SEED = 42  # The random number generator seed is fixed for reproducibility.
 
 # Parameters for generating the pairwise interaction matrix.
@@ -37,7 +37,7 @@ DIAG_LOW, DIAG_HIGH = 1, 100  # The range of diagonal values.
 ZERO_FRACTION = 0.5  # The fraction of off-diagonal entries that are set to 0.
 
 # Weights / capacity
-WEIGHT_LOW, WEIGHT_HIGH = 1, 30  # The range of weights for each item.
+WEIGHT_LOW, WEIGHT_HIGH = 1, 30  # The range of weights for each product.
 CAPACITY_FRACTION = (
     0.5  # Choose a value within [0.2, 0.5], weight_limit = CAPACITY_FRACTION * sum(weights)
 )
@@ -90,7 +90,7 @@ def generate_weights(n, seed, low=1, high=30):
     """Generate a random weight vector for the knapsack problem.
 
     Args:
-        n: The number of items.
+        n: The number of products.
         seed: The random number generator seed.
         low: The lower bound for weights (inclusive).
         high: The upper bound for weights (exclusive).
@@ -103,7 +103,7 @@ def generate_weights(n, seed, low=1, high=30):
 
 
 # Formulation 1: Using a binary variable
-def build_binary_model(half_values_interaction_matrix, weights, weight_limit):
+def build_binary_model(n,half_values_interaction_matrix, weights, weight_limit):
     """Build the binary variable formulation of the quadratic knapsack problem.
 
     Returns:
@@ -118,7 +118,7 @@ def build_binary_model(half_values_interaction_matrix, weights, weight_limit):
     container_weight_limit = model_binary.constant(weight_limit)
 
     # Define the binary variable.
-    products = model_binary.binary(N)
+    products = model_binary.binary(n)
 
     # Set the objective function: Maximize the total value of products in the container.
     model_binary.minimize(-(products @ values @ products))
@@ -131,7 +131,7 @@ def build_binary_model(half_values_interaction_matrix, weights, weight_limit):
 
 
 # Formulation 2: Using a set variable
-def build_set_model(half_values_interaction_matrix, weights, weight_limit):
+def build_set_model(n, half_values_interaction_matrix, weights, weight_limit):
     """Build the set variable formulation of the quadratic knapsack problem.
 
     Returns:
@@ -141,7 +141,7 @@ def build_set_model(half_values_interaction_matrix, weights, weight_limit):
     model_set = Model()
 
     # Identity matrix of dimensions n x n.
-    identity_matrix = np.eye(N)
+    identity_matrix = np.eye(n)
 
     # Add the constants to the model object.
     values = model_set.constant(half_values_interaction_matrix)
@@ -152,7 +152,7 @@ def build_set_model(half_values_interaction_matrix, weights, weight_limit):
     eye = model_set.constant(identity_matrix)
 
     # Define the set variable.
-    products = model_set.set(N)
+    products = model_set.set(n)
 
     # Build a fixed-shape binary indicator vector of length n from the set.
     products_selected = eye[products].sum(axis=0)
@@ -196,8 +196,8 @@ weight_limit = CAPACITY_FRACTION * weights.sum()
 
 if weight_limit < weights.min():
     raise ValueError(
-        f"The weight limit ({weight_limit:.2f}) is smaller than the lightest item "
-        f"({weights.min()}), so no item can be selected. Increase CAPACITY_FRACTION "
+        f"The weight limit ({weight_limit:.2f}) is smaller than the lightest product "
+        f"({weights.min()}), so no product can be selected. Increase CAPACITY_FRACTION "
         "or lower WEIGHT_LOW and WEIGHT_HIGH."
     )
 
@@ -209,8 +209,8 @@ half_values_interaction_matrix[np.diag_indices_from(half_values_interaction_matr
 
 # Run both formulations across the same time limits / samples.
 FORMULATIONS = [
-    ("binary", lambda: build_binary_model(half_values_interaction_matrix, weights, weight_limit)),
-    ("set", lambda: build_set_model(half_values_interaction_matrix, weights, weight_limit)),
+    ("binary", lambda: build_binary_model(N, half_values_interaction_matrix, weights, weight_limit)),
+    ("set", lambda: build_set_model(N, half_values_interaction_matrix, weights, weight_limit)),
 ]
 rows_by_formulation = {label: [] for label, _ in FORMULATIONS}
 
@@ -271,10 +271,10 @@ plt.plot(
     color="tab:red",
     label="Set formulation",
 )
-plt.xlabel("Time limit", fontsize=14)
+plt.xlabel("Time limit (seconds)", fontsize=14)
 plt.ylabel("Objective value", fontsize=14)
 plt.title(
-    "Binary vs. set formulation\n" f"Objective over time (N={N}, runs={SAMPLES_PER_TIME})",
+    "Binary vs. Set Formulation\n" f"Objective Value Over time (n={N}, runs={SAMPLES_PER_TIME})",
     fontsize=12,
 )
 plt.grid(True)
