@@ -3,22 +3,19 @@ quadknapsack_set_binary_comparison.py
 
 Self-contained script that:
     1. Generates a shared random matrix.
-    2. Builds and runs both the binary-variable formulation and the set-variable
-        formulation of the same quadratic knapsack problem across a range of solver
-        time limits.
-    3. Plots both formulations' mean-objective-vs-time-limit curves on the same,
-        color-coded figure for direct comparison.
+    2. Builds and runs both the binary-variable and set-variable formulations of the same quadratic knapsack problem across a range of solver time limits.
+    3. Plots the mean objective versus time limit for both formulations in a single, color-coded figure for direct comparison.
 
 Matrix generation notes:
     - Off-diagonal (pairwise interaction) entries are drawn from
         [VALUE_LOW, VALUE_HIGH), symmetrized, and then approximately ZERO_FRACTION
         of them are randomly zeroed out (default 50%), while keeping the matrix
         symmetric.
-    - The diagonal is filled with random nonzero integers.
+    - Diagonal entries are filled with random nonzero integers.
     - Matrix size N is a hyperparameter.
 
 Weight/capacity notes:
-    - Item weights are random integers in [WEIGHT_LOW, WEIGHT_HIGH).
+    - Product weights are random integers in [WEIGHT_LOW, WEIGHT_HIGH).
     - The knapsack `weight_limit` ("capacity") is set to CAPACITY_FRACTION of the
         total weight of all items. CAPACITY_FRACTION should be chosen in the
         range 0.2-0.5 (20%-50% of total weight).
