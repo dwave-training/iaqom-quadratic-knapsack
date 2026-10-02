@@ -85,14 +85,75 @@ Follow the instructions below, then submit the problem to the Stride solver.
 Open `quadknapsack_set_matmul_onematrix.py`.
 
    1. As you explore the starter code, notice two important differences: 
-      -  A single `values_matrix` is used to represent the values of individual products and the interactions associated with selecting pairs of products together. In the earlier formulation, the `pairwise_interaction` matrix had zeros on the diagonal (because an item does not interact with itself), while the individual product values were stored separately in a one-dimensional array. Here, these two data structures are combined into one `values_matrix` where the diagonal entries are the values of individual products (linear values) and the off-diagonal entries are the pairwise added values (quadratic values).
+      -  A single `values_matrix` is used to represent the values of individual products and the interactions associated with selecting pairs of products together. In the earlier formulation, the `pairwise_interaction` matrix had zeros on the diagonal (because a product does not interact with itself), while the individual product values were stored separately in a one-dimensional array. Here, these two data structures are combined into one `values_matrix` where the diagonal entries are the values of individual products (linear values) and the off-diagonal entries are the pairwise added values (quadratic values).
 
       -  The NumPy `eye` function is used to create an identity matrix of dimensions `n x n`. It is stored in `identity_matrix`. This function returns a 2-D array with 1s on the diagonal and 0s elsewhere (also known as an identity matrix). The resulting matrix is added to the model as a constant, which will be used to build an indicator vector. You will need this for the objective function. Since a set is a dynamic array, its shape is not fixed, which has implications for the code.
    
    2. Define the set decision variable and store it in `products`. A set symbol is used to indicate the packed product indices (dynamic size 0 to `n`). Use `n` to determine the total number of elements in the set.
 
    3. Build a fixed-shape binary indicator vector of length `n` from the set and store it in `products_selected`. Use the `products` indices to select the corresponding rows of the identity matrix created above. Then, use `.sum(axis=0)` to add the selected rows column by column.
-   The result `products_selected` is an indicator vector, where `products_selected[i] = 1` if item `i` is in the chosen set, and 0 otherwise. In other words, `products` stores the selected products as a set with non-fixed size, while `products_selected` provides another representation of that same selection but of a fixed length `n` where each position indicates whether the corresponding product is included in the set.
+   The result `products_selected` is an indicator vector, where `products_selected[i] = 1` if product `i` is in the chosen set, and 0 otherwise. In other words, `products` stores the selected products as a set with non-fixed size, while `products_selected` provides another representation of that same selection but of a fixed length `n` where each position indicates whether the corresponding product is included in the set.
 
    4. Set the objective function, using the `@` operator, to maximize the total value of selected products. The row vector `products_selected`, `values`, and `products_selected` reshaped to a column vector are multiplied together, resulting in a single scalar value that represents the total value of the selected products. 
 
+## Example: Quadratic knapsack comparison script
+This script is intended to serve as a hands-on example of how modeling choices (not just the underlying problem) can affect solver behavior and, thus, does not contain any `TODO` sections.
+
+This script compares two formulations of the same quadratic knapsack problem:
+
+- A binary formulation where each product is treated as a binary decision variable.
+- A set formulation where the selected products are represented as a set.
+
+Both formulations are intended to represent the same mathematical problem, so their true optimal objective values are equal. However, the solver is not guaranteed to find the optimum, even with a longer time limit; the solutions found can differ between formulations and runs. Changing the problem inputs can also affect solution quality.
+
+### Script overview
+
+1. Generates a random quadratic knapsack instance with:
+   - A symmetric interaction matrix for pairwise product values,
+   - A vector of product weights, and
+   - A capacity determined by the total product weight.
+2. Builds two optimization models for the same problem instance, each defined in one of the following functions:
+   - `build_binary_model(...)`
+   - `build_set_model(...)`
+3. Runs both formulations across a range of time limits and repeated samples.
+4. Summarizes the objective values across the tested time limits and saves the comparison plot.
+
+### Key parameters
+
+These are the main settings that affect the problem and the results. In practice, you usually only need to edit the values near the top of the script to explore different instances and solver behaviors.
+
+| Parameter | What it does |
+| --- | --- |
+| `N` | Number of products. Larger values make the problem harder and slower. |
+| `VALUE_LOW`, `VALUE_HIGH` | Range for off-diagonal interaction values. |
+| `DIAG_LOW`, `DIAG_HIGH` | Range for diagonal values in the interaction matrix. |
+| `ZERO_FRACTION` | Fraction of off-diagonal entries set to zero; higher values make the matrix sparser. |
+| `WEIGHT_LOW`, `WEIGHT_HIGH` | Range for product weights. |
+| `CAPACITY_FRACTION` | Knapsack capacity as a fraction of total weight. Smaller values create a tighter problem. |
+| `TIME_LIMITS` | Solver time limits to compare. |
+| `SAMPLES_PER_TIME` | Number of repeated runs per time limit. |
+
+### Suggested experiments
+
+- Change `N` to see how the formulations scale.
+- Adjust `ZERO_FRACTION` to change matrix sparsity.
+- Pick different values of `CAPACITY_FRACTION` for a tighter knapsack constraint.
+- Change `TIME_LIMITS` to compare performance more thoroughly.
+
+Larger problem sizes and longer solver time limits can increase the experiment’s total runtime. For larger instances, keep the solver time limit at or below 30 seconds per run to keep the experiment practical.
+
+
+### Output
+
+The script prints:
+
+- Model size information for each formulation.
+- Summary tables of objective values for each time limit.
+
+It also saves a plot comparing solution quality across time limits for the binary and set formulations.
+
+The output file is named:
+
+```text
+combined_solution_quality_time_n{N}_runs{SAMPLES_PER_TIME}.png
+```
