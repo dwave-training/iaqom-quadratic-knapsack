@@ -1,6 +1,4 @@
 """
-quadknapsack_set_binary_comparison.py
-
 Self-contained script that:
     1. Generates a shared random matrix.
     2. Builds and runs both the binary-variable and set-variable formulations of the same
@@ -30,7 +28,7 @@ from dwave.optimization import Model
 from dwave.system import StrideHybridSolver
 
 # Global parameters for the problem instance.
-N = 300  # The number of products, which is also the dimension of the n x n values matrix.
+N = 300  # The number of products, which is also the dimension of the N x N values matrix.
 SEED = 42  # The random number generator seed is fixed for reproducibility.
 
 # Parameters for generating the pairwise interaction matrix.
