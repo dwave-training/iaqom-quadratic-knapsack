@@ -104,7 +104,7 @@ This script compares two formulations of the same quadratic knapsack problem:
 - A binary formulation where each product is treated as a binary decision variable.
 - A set formulation where the selected products are represented as a set.
 
-Both formulations are intended to represent the same mathematical problem, so their true optimal objective values are equal. However, the solver is not guaranteed to find the optimum, even with a longer time limit; the solutions found can differ between formulations and runs. Changing the problem inputs can also affect solution quality.
+Both formulations are intended to represent the same mathematical problem, so their true optimal objective values are equal. However, the solver is not guaranteed to find the optimum, even with a longer time limit; the solutions found can differ between formulations and runs.
 
 ### Script overview
 
